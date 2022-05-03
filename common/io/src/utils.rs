@@ -18,8 +18,10 @@ use std::path::PathBuf;
 use bincode::Options;
 use bytes::BufMut;
 use common_exception::Result;
+use num::cast::AsPrimitive;
 
-pub fn convert_byte_size(num: f64) -> String {
+pub fn convert_byte_size(num: impl AsPrimitive<f64>) -> String {
+    let num = num.as_();
     let negative = if num.is_sign_positive() { "" } else { "-" };
     let num = num.abs();
     let units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];

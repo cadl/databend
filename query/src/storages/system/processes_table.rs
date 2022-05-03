@@ -20,6 +20,7 @@ use common_contexts::DalMetrics;
 use common_datablocks::DataBlock;
 use common_datavalues::prelude::*;
 use common_exception::Result;
+use common_io::prelude::*;
 use common_meta_types::TableIdent;
 use common_meta_types::TableInfo;
 use common_meta_types::TableMeta;
@@ -68,7 +69,7 @@ impl AsyncSystemTable for ProcessesTable {
             processes_extra_info.push(ProcessesTable::process_extra_info(
                 &process_info.session_extra_info,
             ));
-            processes_memory_usage.push(process_info.memory_usage);
+            processes_memory_usage.push(convert_byte_size(process_info.memory_usage).into_bytes());
             let (dal_metrics_read_bytes, dal_metrics_write_bytes) =
                 ProcessesTable::process_dal_metrics(&process_info.dal_metrics);
             processes_dal_metrics_read_bytes.push(dal_metrics_read_bytes);
@@ -106,11 +107,11 @@ impl ProcessesTable {
             DataField::new("state", Vu8::to_data_type()),
             DataField::new("database", Vu8::to_data_type()),
             DataField::new_nullable("extra_info", Vu8::to_data_type()),
-            DataField::new("memory_usage", i64::to_data_type()),
-            DataField::new_nullable("dal_metrics_read_bytes", u64::to_data_type()),
-            DataField::new_nullable("dal_metrics_write_bytes", u64::to_data_type()),
+            DataField::new("memory_usage", Vu8::to_data_type()),
+            DataField::new_nullable("dal_metrics_read_bytes", Vu8::to_data_type()),
+            DataField::new_nullable("dal_metrics_write_bytes", Vu8::to_data_type()),
             DataField::new_nullable("scan_progress_read_rows", u64::to_data_type()),
-            DataField::new_nullable("scan_progress_read_bytes", u64::to_data_type()),
+            DataField::new_nullable("scan_progress_read_bytes", Vu8::to_data_type()),
         ]);
 
         let table_info = TableInfo {
@@ -140,12 +141,14 @@ impl ProcessesTable {
         session_extra_info.clone().map(|s| s.into_bytes())
     }
 
-    fn process_dal_metrics(dal_metrics_opt: &Option<DalMetrics>) -> (Option<u64>, Option<u64>) {
+    fn process_dal_metrics(
+        dal_metrics_opt: &Option<DalMetrics>,
+    ) -> (Option<Vec<u8>>, Option<Vec<u8>>) {
         if dal_metrics_opt.is_some() {
             let dal_metrics = dal_metrics_opt.as_ref().unwrap();
             (
-                Some(dal_metrics.get_read_bytes() as u64),
-                Some(dal_metrics.get_write_bytes() as u64),
+                Some(convert_byte_size(dal_metrics.get_read_bytes()).into_bytes()),
+                Some(convert_byte_size(dal_metrics.get_write_bytes()).into_bytes()),
             )
         } else {
             (None, None)
@@ -154,12 +157,12 @@ impl ProcessesTable {
 
     fn process_scan_progress_values(
         scan_progress_opt: &Option<ProgressValues>,
-    ) -> (Option<u64>, Option<u64>) {
+    ) -> (Option<u64>, Option<Vec<u8>>) {
         if scan_progress_opt.is_some() {
             let scan_progress = scan_progress_opt.as_ref().unwrap();
             (
                 Some(scan_progress.rows as u64),
-                Some(scan_progress.bytes as u64),
+                Some(convert_byte_size(scan_progress.bytes).into_bytes()),
             )
         } else {
             (None, None)

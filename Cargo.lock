@@ -1042,6 +1042,7 @@ dependencies = [
  "common-exception",
  "futures",
  "lexical-core",
+ "num",
  "opendal",
  "rand 0.8.5",
  "serde",
