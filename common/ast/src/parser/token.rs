@@ -953,7 +953,7 @@ impl TokenKind {
             | TokenKind::OFFSET
             | TokenKind::ON
             | TokenKind::ORDER
-            // | TokenKind::OVERLAPS 
+            // | TokenKind::OVERLAPS
             // | TokenKind::RETURNING
             | TokenKind::STAGE
             | TokenKind::TO
