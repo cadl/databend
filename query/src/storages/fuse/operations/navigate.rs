@@ -36,7 +36,7 @@ impl FuseTable {
     ) -> Result<Arc<FuseTable>> {
         println!(
             "!!!!! navigate_to_time_point: {}",
-            self.snapshot_loc().or("none")
+            self.snapshot_loc().unwrap_or("none".to_string())
         );
         self.find(ctx.as_ref(), |snapshot| {
             if let Some(ts) = snapshot.timestamp {
