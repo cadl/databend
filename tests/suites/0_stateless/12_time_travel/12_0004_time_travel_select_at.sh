@@ -25,7 +25,8 @@ echo "set enable_planner_v2 = 1;select count(t.c) from t12_0004 at (snapshot => 
 
 TIMEPOINT=$(echo "select timestamp from fuse_snapshot('default', 't12_0004') where row_count=2" | $MYSQL_CLIENT_CONNECT)
 echo "planner_v2: counting the data set of fisrt insertion by timestamp, which should contains 2 rows"
-echo "set enable_planner_v2 = 1;select count(t.c) from t12_0004 at (timestamp => cast('$TIMEPOINT' as timestamp)) as t" | $MYSQL_CLIENT_CONNECT
+set -ex
+echo "set enable_planner_v2 = 1;select count(t.c) from t12_0004 at (timestamp => cast($TIMEPOINT as timestamp)) as t" | $MYSQL_CLIENT_CONNECT
 
 ## Drop table.
 echo "drop table  t12_0004" | $MYSQL_CLIENT_CONNECT
