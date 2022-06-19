@@ -34,6 +34,7 @@ impl FuseTable {
         ctx: &Arc<QueryContext>,
         time_point: DateTime<Utc>,
     ) -> Result<Arc<FuseTable>> {
+        println!("!!!!! navigate_to_time_point: {}", self.snapshot_loc());
         self.find(ctx.as_ref(), |snapshot| {
             if let Some(ts) = snapshot.timestamp {
                 ts <= time_point
