@@ -40,6 +40,7 @@ impl FuseTable {
         );
         self.find(ctx.as_ref(), |snapshot| {
             if let Some(ts) = snapshot.timestamp {
+                println!("{:?}, {:?}", ts, time_point);
                 ts <= time_point
             } else {
                 false
